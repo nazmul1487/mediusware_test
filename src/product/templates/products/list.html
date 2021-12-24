@@ -5,7 +5,7 @@
 {% block content %}
 
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Products</h1>
+    <h1 class="h3 mb-0 text-gray-800">All Products</h1>
 </div>
 
 
@@ -55,20 +55,21 @@
                 </thead>
 
                 <tbody>
+                {% for pr in page_obj %}
                 <tr>
-                    <td>1</td>
-                    <td>T-Shirt <br> Created at : 25-Aug-2020</td>
-                    <td>Quality product in low cost</td>
+                    <td>{{ pr.id }}</td>
+                    <td>{{ pr.product.title }} <br> Created at : 25-Aug-2020</td>
+                    <td>{{ pr.product.description }}</td>
                     <td>
                         <dl class="row mb-0" style="height: 80px; overflow: hidden" id="variant">
 
                             <dt class="col-sm-3 pb-0">
-                                SM/ Red/ V-Nick
+                               {{ pr.product_variant_one.variant_title }}/ {{ pr.product_variant_two.variant_title }}/ {{ pr.product_variant_three.variant_title }}
                             </dt>
                             <dd class="col-sm-9">
                                 <dl class="row mb-0">
-                                    <dt class="col-sm-4 pb-0">Price : 200.0</dt>
-                                    <dd class="col-sm-8 pb-0">InStock : 50.</dd>
+                                    <dt class="col-sm-4 pb-0">Price: {{ pr.price }}</dt>
+                                    <dd class="col-sm-8 pb-0"> Stock:{{ pr.stock }}</dd>
                                 </dl>
                             </dd>
                         </dl>
@@ -81,6 +82,7 @@
                         </div>
                     </td>
                 </tr>
+                {% endfor %}
                 </tbody>
 
             </table>

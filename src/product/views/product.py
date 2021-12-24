@@ -5,6 +5,8 @@ from django.http import JsonResponse
 from product.models import Variant, Product, ProductVariant, ProductVariantPrice
 from django.views.decorators.csrf import csrf_exempt
 import json
+from django.shortcuts import redirect, render
+from django.core.paginator import Paginator
 
 
 class CreateProductView(TemplateView):
@@ -59,6 +61,21 @@ class CreateProductAPIView(View):
             }
             ProductVariantPrice.objects.create(**product_variant_price_data)
         del product_variant_price
-        return JsonResponse({"data": "New Product is created"})
+        return redirect('list.product')
+        # return JsonResponse({"data": "New Product is created"})
 
 
+class ProductsView(TemplateView):
+
+    def get(self, request):
+        all_variant_product = ProductVariantPrice.objects.all()
+        paginator = Paginator(all_variant_product, 10)
+        page_number = request.GET.get("page", 1)
+        page_obj = paginator.get_page(page_number)
+
+        context = { "page_obj": page_obj }
+
+        return render(request, 'products/list.html', context=context)
+
+    def post(self, request):
+        pass

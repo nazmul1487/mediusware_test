@@ -188,7 +188,7 @@ export default {
         product_variant: this.product_variant,
         product_variant_prices: this.product_variant_prices
       }
-      axios.post('/product/', product).then(response => {
+      axios.post('/product/create-api/', product).then(response => {
         console.log(response.data);
       }).catch(error => {
         console.log(error);

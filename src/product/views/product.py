@@ -69,11 +69,12 @@ class ProductsView(TemplateView):
 
     def get(self, request):
         all_variant_product = ProductVariantPrice.objects.all()
+        product_total = len(all_variant_product)
         paginator = Paginator(all_variant_product, 10)
         page_number = request.GET.get("page", 1)
         page_obj = paginator.get_page(page_number)
 
-        context = { "page_obj": page_obj }
+        context = { "page_obj": page_obj, "product_total": product_total }
 
         return render(request, 'products/list.html', context=context)
 

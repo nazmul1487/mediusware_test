@@ -56,6 +56,7 @@
 
                 <tbody>
                 {% for pr in page_obj %}
+
                 <tr>
                     <td>{{ pr.id }}</td>
                     <td>{{ pr.product.title }} <br> Created at : 25-Aug-2020</td>
@@ -93,10 +94,31 @@
     <div class="card-footer">
         <div class="row justify-content-between">
             <div class="col-md-6">
-                <p>Showing 1 to 10 out of 100</p>
+                <div class="pagination pagination-centered">
+                    <ul style="list-style: none;" class="d-flex ">
+                        <!-- <span class="step-links">-->
+                        {% if page_obj.has_previous %}
+                            <li class="px-2"><a href="?page=1" class="first">&laquo; first</a></li>
+                            <li class="px-2"><a href="?page={{ page_obj.previous_page_number }}" class="previous">previous</a>
+                            </li>
+                        {% endif %}
+
+                        <!-- <span class="current">-->
+                        <li class="px-2"><span class="page">Page</span> <span>{{ page_obj.number }}</span></li>
+                        <li class="px-2"><span class="page">of</span> <span>{{ page_obj.paginator.num_pages }}</span></li>
+                        <!--  </span>-->
+
+                        {% if page_obj.has_next %}
+                            <li class="px-2"><a href="?page={{ page_obj.next_page_number }}" class="next">next</a></li>
+                            <li class="px-2"><a href="?page={{ page_obj.paginator.num_pages }}" class="last">last &raquo;</a>
+                            </li>
+                        {% endif %}
+                        <!--   </span>-->
+                    </ul>
+                </div>
             </div>
             <div class="col-md-2">
-
+                <p class="px-2"><span class="page">Show</span> <span>1 to 10 out of {{ product_total }} </span></p>
             </div>
         </div>
     </div>

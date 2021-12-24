@@ -5,7 +5,7 @@
         <div class="card shadow mb-4">
           <div class="card-body">
             <div class="form-group">
-              <label for="">Product Name</label>
+              <label for="">Product Name:</label>
               <input type="text" v-model="product_name" placeholder="Product Name" class="form-control">
             </div>
             <div class="form-group">
@@ -129,7 +129,8 @@ export default {
         url: 'https://httpbin.org/post',
         thumbnailWidth: 150,
         maxFilesize: 0.5,
-        headers: {"My-Awesome-Header": "header value"}
+        headers: {"My-Awesome-Header": "header value"},
+        addRemoveLinks: true
       }
     }
   },
@@ -183,13 +184,11 @@ export default {
         title: this.product_name,
         sku: this.product_sku,
         description: this.description,
-        product_image: this.images,
+        product_image: this.$refs.myVueDropzone.getAcceptedFiles(),
         product_variant: this.product_variant,
         product_variant_prices: this.product_variant_prices
       }
-
-
-      axios.post('/product', product).then(response => {
+      axios.post('/product/', product).then(response => {
         console.log(response.data);
       }).catch(error => {
         console.log(error);

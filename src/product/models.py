@@ -12,6 +12,7 @@ class Product(models.Model):
     title = models.CharField(max_length=255)
     sku = models.SlugField(max_length=255)
     description = models.TextField()
+    created_date = models.DateTimeField(auto_now=True, blank=True)
 
 
 class ProductImage(models.Model):

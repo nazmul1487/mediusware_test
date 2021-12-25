@@ -21,8 +21,8 @@ class ProductImage(models.Model):
 
 class ProductVariant(models.Model):
     variant_title = models.CharField(max_length=255)
-    variant = models.ForeignKey(Variant, on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    variant = models.ForeignKey(Variant, on_delete=models.CASCADE, related_name="product_variant")
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="variants")
 
 
 class ProductVariantPrice(models.Model):
@@ -34,4 +34,4 @@ class ProductVariantPrice(models.Model):
                                               related_name='product_variant_three')
     price = models.FloatField()
     stock = models.FloatField()
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="variant_price")

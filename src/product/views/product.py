@@ -1,12 +1,13 @@
 from django.utils.decorators import method_decorator
 from django.views import View
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, ListView
 from django.http import JsonResponse
 from product.models import Variant, Product, ProductVariant, ProductVariantPrice
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django.shortcuts import redirect, render
 from django.core.paginator import Paginator
+from django.db.models import Q, Count
 
 
 class CreateProductView(TemplateView):
@@ -68,40 +69,45 @@ class CreateProductAPIView(View):
 class ProductsView(TemplateView):
 
     def get(self, request):
-        all_variant_product = ProductVariantPrice.objects.all()
-        product_total = len(all_variant_product)
-        variants = ProductVariant.objects.all()
-        option1 = []
-        option2 = []
-        option3 = []
-        for i in variants:
-            if i.variant_id == 1:
-                op1 = i.variant_title
-                if op1 not in option1:
-                    option1.append(op1)
-            if i.variant_id == 2:
-                op2 = i.variant_title
-                if op2 not in option2:
-                    option2.append(op2)
-            if i.variant_id == 3:
-                op3 = i.variant_title
-                if op3 not in option3:
-                    option3.append(op3)
-
-        paginator = Paginator(all_variant_product, 10)
+        query_param = request.GET
+        title = query_param.get("title", None)
+        variant = query_param.get("variant", None)
+        price_from = query_param.get("price_from", None)
+        price_to = query_param.get("price_to", None)
+        products = Product.objects.prefetch_related("variant_price", "variant_price__product_variant_one__variant",
+                                                    "variant_price__product_variant_two__variant",
+                                                    "variant_price__product_variant_three__variant").all()
+        if title:
+            products = products.filter(title__icontains=title)
+        if variant:
+            products = products.filter(variants__variant_title__icontains=variant)
+        if price_from and price_to:
+            products = products.filter(variant_price__price__gte=float(price_from), variant_price__price__lte=float(price_to)).distinct()
+        # product_total = len(products)
+        variants = Variant.objects.order_by("title").values("product_variant__variant_title", "title").annotate(cnt=Count("product_variant__variant_title")).prefetch_related("product_variant")
+        variants_data = {}
+        for variant in variants:
+            key = variant.get("title")
+            value = variant.get("product_variant__variant_title")
+            if variants_data.get(key):
+                variants_data[key].append(value)
+            else:
+                variants_data[key] = [value]
+        paginator = Paginator(products, 10)
         page_number = request.GET.get("page", 1)
         page_obj = paginator.get_page(page_number)
-
+        page_details = {
+            "total_obj": paginator.count,
+            "from_obj": (int(page_number)-1)*10 + 1,
+            "to_obj": min(((int(page_number)-1)*10) + 10, paginator.count)
+        }
         context = {
             "page_obj": page_obj,
-            "product_total": product_total,
-            "option1": option1,
-            "option2": option2,
-            "option3": option3,
-
+            "current_page_obj": len(page_obj.object_list),
+            "page_details": page_details,
+            "variants": variants_data
         }
 
         return render(request, 'products/list.html', context=context)
 
-    def post(self, request):
-        pass
+

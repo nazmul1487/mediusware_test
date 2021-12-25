@@ -63,7 +63,6 @@ class CreateProductAPIView(View):
             ProductVariantPrice.objects.create(**product_variant_price_data)
         del product_variant_price
         return redirect('list.product')
-        # return JsonResponse({"data": "New Product is created"})
 
 
 class ProductsView(TemplateView):

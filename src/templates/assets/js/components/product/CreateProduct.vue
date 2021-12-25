@@ -194,6 +194,8 @@ export default {
         console.log(error);
       })
 
+      window.location.href = "/product/list"
+
       console.log(product);
     }
 

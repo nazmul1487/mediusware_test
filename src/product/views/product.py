@@ -70,11 +70,36 @@ class ProductsView(TemplateView):
     def get(self, request):
         all_variant_product = ProductVariantPrice.objects.all()
         product_total = len(all_variant_product)
+        variants = ProductVariant.objects.all()
+        option1 = []
+        option2 = []
+        option3 = []
+        for i in variants:
+            if i.variant_id == 1:
+                op1 = i.variant_title
+                if op1 not in option1:
+                    option1.append(op1)
+            if i.variant_id == 2:
+                op2 = i.variant_title
+                if op2 not in option2:
+                    option2.append(op2)
+            if i.variant_id == 3:
+                op3 = i.variant_title
+                if op3 not in option3:
+                    option3.append(op3)
+
         paginator = Paginator(all_variant_product, 10)
         page_number = request.GET.get("page", 1)
         page_obj = paginator.get_page(page_number)
 
-        context = { "page_obj": page_obj, "product_total": product_total }
+        context = {
+            "page_obj": page_obj,
+            "product_total": product_total,
+            "option1": option1,
+            "option2": option2,
+            "option3": option3,
+
+        }
 
         return render(request, 'products/list.html', context=context)
 

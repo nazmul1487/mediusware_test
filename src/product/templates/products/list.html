@@ -115,9 +115,9 @@
                             {% endif %}
 
                             <!-- <span class="current">-->
-                            <li class="px-2"><span class="page">Page</span> <span>{{ page_obj.number }}</span></li>
-                            <li class="px-2"><span class="page">of</span>
-                                <span>{{ page_obj.paginator.num_pages }}</span></li>
+                            <li class="px-2"><span class="page">Page </span><span>{{ page_obj.number }}</span></li>
+                            <li class="px-2"><span class="page">out of </span>
+                                <span>{{ page_obj.paginator.num_pages }} Page</span></li>
                             <!--  </span>-->
 
                             {% if page_obj.has_next %}

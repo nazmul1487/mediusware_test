@@ -17,7 +17,7 @@ class Product(models.Model):
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    file_path = models.URLField()
+    image = models.ImageField(upload_to='media', blank=True)
 
 
 class ProductVariant(models.Model):

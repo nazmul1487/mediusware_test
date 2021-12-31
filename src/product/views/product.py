@@ -1,14 +1,14 @@
 from django.utils.decorators import method_decorator
 from django.views import View
-from django.views.generic import TemplateView, ListView
+from django.views.generic import TemplateView, ListView, UpdateView, FormView
 from django.http import JsonResponse
-from product.models import Variant, Product, ProductVariant, ProductVariantPrice
+from product.models import Variant, Product, ProductVariant, ProductVariantPrice, ProductImage
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django.shortcuts import redirect, render
 from django.core.paginator import Paginator
 from django.db.models import Q, Count
-
+import datetime
 
 class CreateProductView(TemplateView):
     template_name = 'products/create.html'
@@ -35,6 +35,9 @@ class CreateProductAPIView(View):
             "description": data.get("description", None),
         }
         a_product = Product.objects.create(**product_data)
+        # image = {}
+        #
+        # image = ProductImage.objects.create(data.get("product_image", None))
         product_variant_data = data.get("product_variant", None)
 
         variant_dict = {}
@@ -73,6 +76,7 @@ class ProductsView(TemplateView):
         variant = query_param.get("variant", None)
         price_from = query_param.get("price_from", None)
         price_to = query_param.get("price_to", None)
+        date = query_param.get("date", None)
         products = Product.objects.prefetch_related("variant_price", "variant_price__product_variant_one__variant",
                                                     "variant_price__product_variant_two__variant",
                                                     "variant_price__product_variant_three__variant").all()
@@ -83,6 +87,9 @@ class ProductsView(TemplateView):
         if price_from and price_to:
             products = products.filter(variant_price__price__gte=float(price_from), variant_price__price__lte=float(price_to)).distinct()
         # product_total = len(products)
+        if date:
+            date = datetime.datetime.strptime(date, '%Y-%m-%d').date()
+            products = products.filter(created_date=date)
         variants = Variant.objects.order_by("title").values("product_variant__variant_title", "title").annotate(cnt=Count("product_variant__variant_title")).prefetch_related("product_variant")
         variants_data = {}
         for variant in variants:
@@ -110,3 +117,76 @@ class ProductsView(TemplateView):
         return render(request, 'products/list.html', context=context)
 
 
+class ProductEditView(View):
+
+    def get(self, request, id):
+        product = Product.objects.prefetch_related("variant_price").filter(id=id)
+        # variants = product.prefetch_related("variants").variants.all()
+        variants_stock = []
+        variants_price = []
+        variants_price = product.first().variant_price.all()
+        variants_price_obj = []
+        for vp in variants_price:
+            variants_stock.append(vp.stock)
+            variants_price.append(vp.price)
+            # variants_price.append(vp.price)
+            # variants_price[vp] = vp.stock
+        # print(variants_stock)
+        # print(variants_price)
+        p_variants = product.first().variants.all()
+        variants = Variant.objects.filter(active=True).values('id', 'title')
+        context = {
+            "product": list(product.values("id", "title", "sku", "description"))[0],
+            "variants_price": variants_price,
+            "variants": list(variants)
+
+        }
+        return render(request, 'products/edit.html', context)
+
+    @method_decorator(csrf_exempt, name="post")
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+
+    def post(self, request, id, **kwargs):
+        data = json.loads(self.request.body)
+        product = Product.objects.prefetch_related("variant_price").filter(id=id).first()
+        product_data = {
+            "title": data.get("title", None),
+            "sku": data.get("sku", None),
+            "description": data.get("description", None),
+        }
+        product.title = product_data['title']
+        product.sku = product_data['sku']
+        product.description = product_data['description']
+        product.save()
+
+        return redirect('list.product')
+
+# Edit the products, product variant price, product variant stock
+
+
+# class ProductEditDjango(FormView):
+#     template_name = ''
+#     form_class = ''
+#
+#     def get(self, request, id):
+#         product_data = {}
+#         product = Product.objects.prefetch_related("variant_price").filter(id=id)
+#         product_data['title'] = product[0].title
+#         product_data['sku'] = product[0].sku
+#         product_data['description'] = product[0].description
+#         product_variant_data = ProductVariantPrice.objects.filter(product__id=id)
+#         product_data['variant_one_stock'] = product_variant_data[0].variant_one_stock
+#         product_data['variant_two_stock'] = product_variant_data[0].variant_two_stock
+#         product_data['variant_three_stock'] = product_variant_data[0].variant_three_stock
+#         product_data['variant_one_price'] = product_variant_data[0].variant_one_price
+#         product_data['variant_two_price'] = product_variant_data[0].variant_two_price
+#         product_data['variant_three_price'] = product_variant_data[0].variant_three_price
+#
+#         return product_data
+#
+#     def post(self, request, *args, **kwargs):
+#         form = self.get_form()
+#         if form.is_valid():
+#             return self.form_valid(form)
+#         return redirect('list.product')

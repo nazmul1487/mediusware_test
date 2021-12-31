@@ -5,7 +5,7 @@
         <div class="card shadow mb-4">
           <div class="card-body">
             <div class="form-group">
-              <label for="">Product Name:</label>
+              <label for="">Product name</label>
               <input type="text" v-model="product_name" placeholder="Product Name" class="form-control">
             </div>
             <div class="form-group">
@@ -85,6 +85,7 @@
                 </tr>
                 </tbody>
               </table>
+
             </div>
           </div>
         </div>
@@ -93,6 +94,7 @@
 
     <button @click="saveProduct" type="submit" class="btn btn-lg btn-primary">Save</button>
     <button type="button" class="btn btn-secondary btn-lg">Cancel</button>
+
   </section>
 </template>
 
@@ -100,6 +102,7 @@
 import vue2Dropzone from 'vue2-dropzone'
 import 'vue2-dropzone/dist/vue2Dropzone.min.css'
 import InputTag from 'vue-input-tag'
+
 
 export default {
   components: {
@@ -110,13 +113,17 @@ export default {
     variants: {
       type: Array,
       required: true
+    },
+    product: {
+      type: Object,
+      required: true
     }
   },
   data() {
     return {
-      product_name: '',
-      product_sku: '',
-      description: '',
+      product_name: this.product.title,
+      product_sku: this.product.sku,
+      description: this.product.description,
       isError: false,
       images: [],
       product_variant: [
@@ -208,12 +215,11 @@ export default {
           product_variant: this.product_variant,
           product_variant_prices: this.product_variant_prices
         }
-        axios.post('/product/create-api/', product).then(response => {
+        axios.post(`/product/edit/${this.product.id}/`, product).then(response => {
           console.log(response.data);
         }).catch(error => {
           console.log(error);
         })
-
         window.location.href = "/product/list"
 
         console.log(product);

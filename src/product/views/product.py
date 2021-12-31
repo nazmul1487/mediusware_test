@@ -1,6 +1,6 @@
 from django.utils.decorators import method_decorator
 from django.views import View
-from django.views.generic import TemplateView, ListView, UpdateView
+from django.views.generic import TemplateView, ListView, UpdateView, FormView
 from django.http import JsonResponse
 from product.models import Variant, Product, ProductVariant, ProductVariantPrice, ProductImage
 from django.views.decorators.csrf import csrf_exempt
@@ -162,3 +162,31 @@ class ProductEditView(View):
 
         return redirect('list.product')
 
+# Edit the products, product variant price, product variant stock
+
+
+# class ProductEditDjango(FormView):
+#     template_name = ''
+#     form_class = ''
+#
+#     def get(self, request, id):
+#         product_data = {}
+#         product = Product.objects.prefetch_related("variant_price").filter(id=id)
+#         product_data['title'] = product[0].title
+#         product_data['sku'] = product[0].sku
+#         product_data['description'] = product[0].description
+#         product_variant_data = ProductVariantPrice.objects.filter(product__id=id)
+#         product_data['variant_one_stock'] = product_variant_data[0].variant_one_stock
+#         product_data['variant_two_stock'] = product_variant_data[0].variant_two_stock
+#         product_data['variant_three_stock'] = product_variant_data[0].variant_three_stock
+#         product_data['variant_one_price'] = product_variant_data[0].variant_one_price
+#         product_data['variant_two_price'] = product_variant_data[0].variant_two_price
+#         product_data['variant_three_price'] = product_variant_data[0].variant_three_price
+#
+#         return product_data
+#
+#     def post(self, request, *args, **kwargs):
+#         form = self.get_form()
+#         if form.is_valid():
+#             return self.form_valid(form)
+#         return redirect('list.product')
